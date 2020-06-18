@@ -11,17 +11,20 @@ import java.io.*;
 
 
 public class Compressor {
-    HTree tree;
-    Map<Character, Integer> frequencyMap;
-    Map<Character, String> codeMap;
-    PriorityQueue<HTree> queue;
-    BufferedReader input;
-    BufferedWriter output;
-    BufferedBitReader bitInput;
-    BufferedBitWriter bitOutput;
-    boolean debugFlag = false;
-    static String file = "/Users/caroline/Documents/IdeaProjects/cs10/ps3/USConstitution.txt";
+    HTree tree;                                                 //final huffmann tree
+    Map<Character, Integer> frequencyMap;                       //maps characters to their frequencies
+    Map<Character, String> codeMap;                             //maps character to their binary codes
+    PriorityQueue<HTree> queue;                                 //queue of huffmann trees
+    BufferedReader input;                                       //for reading input file
+    BufferedWriter output;                                      //for writing to output file
+    BufferedBitReader bitInput;                                 //reading individual bits
+    BufferedBitWriter bitOutput;                                //writing individual bits
+    boolean debugFlag = false;                                  //printing debugging statements
+    static String file = "USConstitution.txt";                  //update to absolute pathname
 
+    /*
+     * Constructor. Opens files for reading/writing.
+     */
     public Compressor(String filename) {
         frequencyMap = new TreeMap<>();
         codeMap = new TreeMap<>();
@@ -33,6 +36,7 @@ public class Compressor {
         } catch (Exception e) {
             System.err.println(e);
             System.err.println("Unable to open input file");
+            return;
         }
 
         //creating buffer writer to write output file
@@ -41,6 +45,7 @@ public class Compressor {
         } catch (Exception e) {
             System.out.println(e);
             System.out.println("Unable to open output file");
+            return;
         }
 
         //opening bit writer
@@ -48,8 +53,18 @@ public class Compressor {
             bitOutput = new BufferedBitWriter(changeFilenameCompress(filename));
         } catch (Exception e) {
             System.out.println("Unable to open bit writer");
+            return;
         }
 
+        if (input != null && output != null && bitOutput != null) {
+            generateMap();
+            generatePQ();
+            generateHuffmann();
+            generateCodeMap();
+            compress(file);
+            decompress(file);
+            closeEverything();
+        }
     }
 
     /*
@@ -356,13 +371,6 @@ public class Compressor {
 
     public static void main(String[] args) {
         Compressor compress = new Compressor(file);
-        compress.generateMap();
-        compress.generatePQ();
-        compress.generateHuffmann();
-        compress.generateCodeMap();
-        compress.compress(file);
-        compress.decompress(file);
-        compress.closeEverything();
     }
 }
 
